@@ -1,0 +1,229 @@
+
+                                     Protontherapy
+ 
+********************************************************************************************************
+1- GEOMETRY 
+********************************************************************************************************
+
+Two completely independent simulation rooms are available for user to freely build any components such as collimator, shelding etc inside the available room. No need to do any changes in the DetectorConstruction.cc where only detector and phantom have been built.
+
+- Openbeam: This room for open Proton beam and there are no beamline components available (see OpenBeamLine.cc).
+- PassiveProtonBeamLine: This Room is the default which has all iThemba beamline elements (PassiveProtonBeamLine.cc).
+
+The above rooms are controlled by GeometryController.cc and following macros (to select appropriate room)
+
+/geometrySetup/selectGeometry <Openbeam>
+/geometrySetup/selectGeometry <default>  (for PassiveProtonBeamLine)
+
+*** Phantom (Target) ***: 
+
+Cylindical or rectangular targets can be set by /changePhantom/Shape  <Cylinder or Box> 
+
+To set cylindrical Phantom radius           /changePhantom/radius <15> cm
+To set cylindrical Phantom z half Length    /changePhantom/ZHalfLength <15> cm 
+To set rectangular Phantom size             /changePhantom/size <40 40 40>  cm
+To set Phantom Position                     /changePhantom/position <0 0 0> cm
+To set Phantom Material                     /changePhantom/material <Carbon>
+
+*** Detector ***:
+
+Sensitive voxelization detector is available. Detector can be placed inside the phantom in order to make a voxelization phantom by 
+
+/changeDetector/insidethephantom <No/Yes>
+
+To set Detector Position       /changeDetector/position <0 0 200> cm
+To set Detector size           /changeDetector/size <40 40 40> cm
+To set Detector voxelSize      /changeDetector/voxelSize <1 1 1> cm
+To set Detector Material       /changeDetector/Material <NaI>
+To set detector shielding      /changeDetector/detector/Shielding Yes
+
+All changes should be updated by  /change/update     
+ 
+********************************************************************************************************
+2- PHYSICS LIST
+********************************************************************************************************
+
+The QGSP_BIC_EMY package can be selected using /physics/addPackage <QGSP_BIC_EMY>, G4DecayPhysics and G4RadioactiveDecayPhysics are also activated in addition to the above Physics list.
+
+********************************************************************************************************
+3- THE PRIMARY GENERATOR
+********************************************************************************************************
+ 
+GeneralParticleSource (GPS) macro comands are used for ions and Proton beam.
+
+- to build proton point source 
+      /gps/pos/type Point                   
+      /gps/particle proton
+      /gps/pos/centre x y z
+      /gps/energy 200 MeV
+      /gps/direction 0 0 1
+
+- to build proton source (circular)  
+      /gps/particle proton
+      /gps/pos/type Beam
+      /gps/pos/shape Circle
+      /gps/pos/centre x y z
+      /gps/pos/radius 1. mm
+      /gps/pos/sigma_r .1 mm
+      /gps/ang/rot1 0 1 0
+      /gps/ang/rot2 1 0 0
+      /gps/ang/type beam1d
+      /gps/ang/sigma_r 0. deg
+      /gps/ene/type Gauss
+      /gps/energy 200.0 MeV
+      /gps/ene/sigma 1.2 MeV   
+
+- to build proton source (square)  
+      /gps/particle proton
+      /gps/pos/type Beam
+      /gps/pos/centre 0. 0. -7278.0 mm
+      /gps/pos/halfx 0.5 mm
+      /gps/pos/halfy 0.5 mm
+      /gps/pos/sigma_x 0.1 mm
+      /gps/pos/sigma_y 0.2 mm      
+      /gps/ang/type beam2d
+      /gps/ang/sigma_x 0. deg
+      /gps/ang/sigma_y 0. deg
+      /gps/ene/type Gauss          
+      /gps/energy 200.0 MeV
+      /gps/ene/sigma 1.2 MeV
+      /gps/direction 0 0 1  
+   
+- to build iThemba beam circle/Ellipse
+  
+      /gps/particle proton
+      /gps/pos/type Beam
+      /gps/pos/shape Ellipse
+      /gps/pos/halfx 0.721249 cm
+      /gps/pos/halfy 0.5863502 cm
+      /gps/pos/centre 0. 0. -7278.0 mm
+      /gps/ene/type Gauss
+      /gps/energy 200.64 MeV
+      /gps/ene/sigma 1.2 MeV        
+      /gps/direction 0 0 1 
+            
+              
+********************************************************************************************************
+4- MATERIALS
+********************************************************************************************************
+
+For voxelized phantom (voxelized detector is inside the Phantom) or voxelized Detector, a matrix method is available to build data such as PDD and Secondary Particle flunces (see Matrix.cc and DetectorSD.cc for further information)	
+ 	
+********************************************************************************************************
+5- VISUALIZATION
+********************************************************************************************************
+
+Default visualiztion option is OpenGL (/vis/open OGLI).
+User can activate HepRepFile or VRML2FILE via    /vis/open HepRepFile or    /vis/open VRML2FILE
+
+/vis/scene/create
+/vis/open OGLI
+/vis/scene/add/axes  
+/vis/scene/add/eventID
+/vis/open HepRepFile
+/vis/open VRML2FILE
+/vis/viewer/set/viewpointThetaPhi 45 154 deg
+/vis/viewer/zoomTo 1.5
+/vis/viewer/panTo -20 0 cm 
+/tracking/storeTrajectory 1
+/vis/scene/add/trajectories
+/vis/scene/endOfEventAction accumulate
+/vis/scene/endOfEventAction accumulate -1	
+
+********************************************************************************************************
+6- CONSTRUCT VOXELIZED PHANTOM
+********************************************************************************************************
+
+Use "/changeDetector/insidethephantom Yes" to set the detector inside the Phanthom. 
+
+To construct a voxelized phantom along z direction
+
+/changePhantom/Shape   Box                  
+/changePhantom/position 0 0 0 cm
+/changePhantom/size 40 40 40  cm
+/changePhantom/material Water
+
+/changeDetector/insidethephantom Yes
+/changeDetector/position 0 0 0 cm
+/changeDetector/size 40 40 40 cm
+/changeDetector/voxelSize 40 40 0.1 cm    
+/changeDetector/material Water
+
+/change/update 
+
+********************************************************************************************************
+7- USING MATRIX
+********************************************************************************************************
+
+Matrix.cc class was built to store voxelized information such as dose, secondary fluence, secondary particle dose etc. See Dose.out for example of the saved ASCII data. 
+To compute Dose and Fluence for secondary user must set 
+
+/analysis/detector/writeDoseFile
+/analysis/detector/secondary true 
+
+Modulatormatrix class for New modulator dose and fluence measurement. To compute dose deposited and fluence in each copper disk set 
+
+/analysis/modulator/writeDoseFile
+/analysis/modulator/secondary true 
+
+
+********************************************************************************************************
+8- ROOT
+********************************************************************************************************
+Users must installed ROOT in their own. You can download from http://root.cern.ch/drupal/content/downloading-root (download latest version).
+The root installation on Linux is very simple and easy. 
+
+The installation method for Linux users recommended in the Readme file of ROOT:
+
+   1) Get the sources of the latest ROOT (see above link)
+
+   2) Type the build commands:
+        cd root
+        ./configure --help
+        ./configure <arch>        [change arch appropriately]
+        (g)make                   [or, make -j n for n core machines]
+
+   3) Add bin/ to PATH and lib/ to LD_LIBRARY_PATH. For the sh shell family do:
+        . bin/thisroot.sh
+
+      and for the csh shell family do:
+        source bin/thisroot.csh
+
+   4) try running root:
+        root
+
+            
+********************************************************************************************************
+12- HOW TO START 
+********************************************************************************************************
+ 
+compile and link to generate an executable
+ 		% cd Protontherapy
+ 		% make
+ 		
+execute Protontherapy in 'batch' mode from macro files :
+ 		% Protontherapy BP.mac <optional: add a file name for ROOT output>
+        
+        beamline.mac          for Phantom/detector study with iThemba proton beam line
+        BP.mac                for Bragg Peak measurement with iThemba proton beam line
+        PDD.mac               for depth dose measurements with iThemba proton beam line
+        VoxellizedPhantom.mac for voxelized phantom study (target is inside the Phantom) 
+        OpenBeam.mac          for open beam line
+        vis.mac               Optional 
+
+
+To open ROOT output file use ROOT comand
+
+for example:
+
+root <yourfile_name.root> 
+.ls (if you want to see the user built commands)
+histogramName.Draw() (for example BraggPeak1D.Draw())
+.q (to exit)
+
+
+
+
+********************************************************************************************************
+
+  

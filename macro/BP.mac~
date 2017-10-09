@@ -1,0 +1,143 @@
+
+#___________________________________________________________________________________________________________________
+#
+#				<<<<<< Verboses Settings>>>>>>
+#___________________________________________________________________________________________________________________
+#
+/tracking/verbose 0
+/run/verbose 0
+#___________________________________________________________________________________________________________________
+#
+#				<<<<<< Physics Settings>>>>>>
+#___________________________________________________________________________________________________________________
+#
+/Physics/addPhysics QGSP_BIC_EMY
+#___________________________________________________________________________________________________________________
+#
+#				<<<<<< Nozzle Settings>>>>>>
+#___________________________________________________________________________________________________________________
+#
+# old beamline elements replaced by NewRangeMonitoriThemba
+#
+/nozzle/removeMultiLayerFaradayCup                       Yes          # Yes / No (default)
+/nozzle/removeRangeMonitor                               Yes          # Yes / No (default)
+/nozzle/removeOccludingRingAndCentralStopper             Yes          # Yes / No (default)
+#
+# new beam line elements
+#
+/nozzle/removeVacuumTube                                 No           # Yes / No (default)
+/nozzle/removeReferenceIonizationChamber                 No           # Yes / No (default)
+/nozzle/removeYSteeringMagnets                           No           # Yes / No (default)
+/nozzle/removeMultiWireIonizationChamber                 No           # Yes / No (default)
+/nozzle/removeXSteeringMagnets                           No           # Yes / No (default)
+/nozzle/removeRangeTrimmerPlate                          No           # Yes / No (default)
+/nozzle/removeShieldingCollimators                       No           # Yes / No (default)
+/nozzle/removeQuadrantAndMonitorIonizationChamber        No           # Yes / No (default)
+/nozzle/removeBeamFinalCollimator                        No           # Yes / No (default)
+/nozzle/removeNewRangeMonitoriThemba                     No           # Yes / No (default)
+#
+
+/nozzle/removeLeadPlate                                  Yes          # Yes / No (default)
+/nozzle/removeWedge                                      No           # Yes / No (default)
+
+# Range Modulator
+/nozzle/removeRangeModulator                             Yes          # Yes / No (default)
+#
+#
+# Initialize Geometry
+#
+/run/initialize
+#
+#___________________________________________________________________________________________________________________
+#
+#				<<<<<< Primary Particle Settings>>>>>>
+#___________________________________________________________________________________________________________________
+#
+/gps/particle proton
+/gps/pos/type Beam
+
+/gps/pos/shape Ellipse
+/gps/pos/halfx 0.721249 cm
+/gps/pos/halfy 0.5863502 cm
+
+/gps/pos/centre 0. 0. -7278.0 mm
+
+/gps/ene/type Gauss
+/gps/energy 200.64 MeV
+/gps/ene/sigma 2.0 MeV        
+/gps/direction 0 0 1          # the beam is travelling along Z axis
+#
+#___________________________________________________________________________________________________________________
+#
+#				<<<<<< Visualization Settings>>>>>>
+#___________________________________________________________________________________________________________________
+#
+#/vis/scene/create
+#/vis/open OGL 600x600-0+0
+#/vis/scene/add/axes
+#/vis/viewer/flush
+#/vis/viewer/set/viewpointThetaPhi 90 154 deg
+#/vis/viewer/zoomTo 5.5
+#/vis/viewer/panTo 320 0 cm
+#/tracking/storeTrajectory 1
+#/vis/scene/add/trajectories
+#/vis/scene/endOfEventAction accumulate
+#/vis/viewer/update
+#___________________________________________________________________________________________________________________
+#
+#				<<<<<< beamline elements settings >>>>>>
+#___________________________________________________________________________________________________________________
+#
+# move to the downstream by the value set (default is 0 cm and max 130 cm)
+/beamLine/RangeMonitor/move 0 cm              
+#
+# Set Range here, before doing this make sure that "the LEADPLATE" should be removed from the beamline 
+# and add the "WEDGE" using macro above. (max Range:23 cm and mim Range:10 cm)
+#
+/beamLine/Set/Range 118 mm
+#
+# Set collimtor radius (max 100 mm)                   
+/beamLine/TreatmentCollimator/Diameter 10 cm    
+#
+#___________________________________________________________________________________________________________________
+#
+#				<<<<<< Cut and step max Settings>>>>>>
+#___________________________________________________________________________________________________________________
+#
+/Step/waterPhantomStepMax 0.1 mm            # Set StepMax inside the Phantom
+/Step/detectorStepMax 3 mm                # Set StepMax Only for World region
+#
+/Physics/setCuts 1 mm                     # Set cuts outside the detector 
+/Physics/setTargetCuts 0.01 mm            # set cuts ONLY inside the Phantom
+/Physics/setDetectorCuts 0.01 mm          # Set cuts ONLY inside the detector (Dosimeter)
+#___________________________________________________________________________________________________________________
+#
+#				<<<<<< Detector Settings>>>>>>
+#___________________________________________________________________________________________________________________
+#
+/changePhantom/Shape  Box                  
+/changePhantom/size 40 40 40  cm
+/changePhantom/position 0 0 20 cm
+/changePhantom/material Water
+#
+/changeDetector/insidethephantom Yes
+/changeDetector/position 0 0 0 cm
+/changeDetector/size 40 40 40 cm
+/changeDetector/voxelSize 40 40 0.1 cm
+/changeDetector/material Water
+#
+/change/update 
+#
+/analysis/detector/secondary false   # Compute Dose and Fluence for secondary
+#___________________________________________________________________________________________________________________
+#
+#				<<<<<< Event and Run Settings>>>>>>
+#___________________________________________________________________________________________________________________
+#
+# 
+/event/printEventNumber 100
+/analysis/detector/writeDoseFile
+#
+/run/beamOn 10000
+#
+
